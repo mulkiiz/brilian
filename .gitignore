@@ -2,6 +2,8 @@ config.php
 uploads/
 *.log
 error_log
+*.pdf
+*.png
 
 # Tooling autofill katalog (sekali pakai, berisi token — jangan deploy)
 katalog/katalog_autofill.php
