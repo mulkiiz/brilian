@@ -1,0 +1,37 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/jurz2196/public_html/brilian.jurnalsinta.id
+
+    # Pastikan semua folder target ada
+    - /bin/mkdir -p $DEPLOYPATH/assets
+    - /bin/mkdir -p $DEPLOYPATH/katalog
+    - /bin/mkdir -p $DEPLOYPATH/katalog/assets
+    - /bin/mkdir -p $DEPLOYPATH/user_moodle
+
+    # Copy isi folder (config.php tidak ikut karena di-gitignore)
+    - /bin/cp -R assets/*    $DEPLOYPATH/assets/
+    - /bin/cp -R katalog/*   $DEPLOYPATH/katalog/
+
+    # Copy semua file PHP di root (config.php di-gitignore, tidak ikut)
+    - /bin/cp index.php                    $DEPLOYPATH/
+    - /bin/cp submit.php                   $DEPLOYPATH/
+    - /bin/cp verify.php                   $DEPLOYPATH/
+    - /bin/cp admin.php                    $DEPLOYPATH/
+    - /bin/cp _admin_nav.php               $DEPLOYPATH/
+    - /bin/cp presensi.php                 $DEPLOYPATH/
+    - /bin/cp presensi_klaim.php           $DEPLOYPATH/
+    - /bin/cp presensi_status.php          $DEPLOYPATH/
+    - /bin/cp presensi_upload.php          $DEPLOYPATH/
+    - /bin/cp admin_presensi.php           $DEPLOYPATH/
+    - /bin/cp gradebook.php                $DEPLOYPATH/
+    - /bin/cp gradebook_view.php           $DEPLOYPATH/
+    - /bin/cp lms_info.php                 $DEPLOYPATH/
+    - /bin/cp cron_backfill_lms.php        $DEPLOYPATH/
+    - /bin/cp cron_generate_moodle_csv.php $DEPLOYPATH/
+    - /bin/cp XlsxReader.php               $DEPLOYPATH/
+    - /bin/cp PdfTextReader.php            $DEPLOYPATH/
+
+    # Copy .htaccess + webhook deploy
+    - /bin/cp .htaccess          $DEPLOYPATH/
+    - /bin/cp webhook_deploy.php $DEPLOYPATH/
