@@ -1,0 +1,5 @@
+cat > .gitignore << 'EOF'
+config.php
+uploads/
+*.log
+EOF

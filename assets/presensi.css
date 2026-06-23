@@ -1,0 +1,182 @@
+/* =============================================
+   Presensi Brilian 2026 (READ-ONLY MODE)
+   ============================================= */
+
+/* Tombol Cek Presensi (samping Info LMS) */
+.btn-presensi {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 12px;
+  background: #0f766e;
+  color: #fff;
+  border: 1px solid #0f766e;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+.btn-presensi:hover { background: #0d5c55; border-color: #0d5c55; }
+.btn-presensi:active { transform: translateY(1px); }
+
+.aksi-cell { white-space: nowrap; }
+.aksi-cell button { margin-right: 4px; }
+.aksi-cell button:last-child { margin-right: 0; }
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.card-actions .btn-info-lms,
+.card-actions .btn-presensi {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+}
+
+/* Nama desa di modal presensi */
+.pre-desa-name {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #003d7a;
+  background: #eff6ff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin: 0 0 14px;
+}
+
+/* Grid tanggal */
+.pre-date-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.pre-date-card {
+  position: relative;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  padding: 14px 8px 12px;
+  background: #fff;
+  text-align: center;
+  user-select: none;
+  min-height: 120px;
+}
+
+/* Semua kartu read-only: tidak clickable, tapi tetap tampil rapi */
+.pre-date-card.readonly { cursor: default; }
+
+.pre-date-day {
+  font-size: 32px;
+  font-weight: 800;
+  color: #9ca3af;
+  line-height: 1;
+}
+.pre-date-month {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.pre-date-weekday {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+.pre-date-check {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 16px;
+  color: #9ca3af;
+}
+.pre-date-time {
+  font-size: 11px;
+  margin-top: 6px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.pre-date-info {
+  font-size: 10px;
+  margin-top: 3px;
+  line-height: 1.2;
+}
+
+/* === State: DONE (tercatat hadir) === */
+.pre-date-card.done {
+  border-color: #16a34a;
+  background: #dcfce7;
+}
+.pre-date-card.done .pre-date-day    { color: #166534; }
+.pre-date-card.done .pre-date-check  { color: #16a34a; font-size: 18px; }
+.pre-date-card.done .pre-date-time   { color: #166534; }
+.pre-date-card.done .pre-date-info   { color: #16a34a; }
+
+/* === State: TODAY-PENDING (hari ini, belum tercatat) === */
+.pre-date-card.today-pending {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+.pre-date-card.today-pending .pre-date-day  { color: #b45309; }
+.pre-date-card.today-pending .pre-date-info { color: #92400e; font-weight: 600; }
+.pre-date-card.today-pending .today-dot {
+  color: #f59e0b;
+  font-size: 18px;
+}
+
+/* === State: LOCKED (belum berlangsung) === */
+.pre-date-card.locked {
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  opacity: 0.7;
+}
+.pre-date-card.locked .pre-date-day { color: #9ca3af; }
+.pre-date-card.locked .pre-date-info { color: #9ca3af; }
+.pre-date-card.locked .lock { font-size: 14px; filter: grayscale(40%); }
+
+/* === State: MISSED (sudah lewat, tidak hadir) === */
+.pre-date-card.missed {
+  border-color: #e5e7eb;
+  background: #f3f4f6;
+  opacity: 0.6;
+}
+.pre-date-card.missed .pre-date-day { color: #9ca3af; }
+.pre-date-card.missed .pre-date-info { color: #b91c1c; font-weight: 500; }
+
+/* Pesan info di step 2 */
+#pre-step-2-msg.msg {
+  font-size: 13px;
+  color: #374151;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+  display: block;
+  text-align: center;
+}
+#pre-step-2-msg.msg:empty { display: none; }
+#pre-step-2-msg.msg.error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+/* ====== Mobile ====== */
+@media (max-width: 640px) {
+  .pre-date-grid { grid-template-columns: repeat(2, 1fr); }
+  .pre-date-day { font-size: 28px; }
+
+  .aksi-cell { white-space: normal; }
+  .aksi-cell button {
+    display: block;
+    width: 100%;
+    margin: 4px 0;
+  }
+}
