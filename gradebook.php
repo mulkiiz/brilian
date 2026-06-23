@@ -269,70 +269,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // ---------- UPLOAD STATUS TUGAS (PDF Submissions Joglo) ----------
+        // ---------- UPLOAD NILAI 4 TUGAS (XLSX export Moodle "Grades") ----------
         elseif ($aksi === 'upload_tugas') {
-            $tno = (int)($_POST['tugas_no'] ?? 0);
-            if ($tno < 1 || $tno > 4) {
-                $msg = 'Nomor tugas tidak valid.'; $msgType = 'error';
-            } elseif (empty($_FILES['file']['tmp_name'])) {
+            if (empty($_FILES['file']['tmp_name'])) {
                 $msg = 'File belum dipilih.'; $msgType = 'error';
             } else {
                 $ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-                if ($ext !== 'pdf') {
-                    $msg = 'File harus PDF (export "Submissions" dari Joglo).';
+                if ($ext !== 'xlsx') {
+                    $msg = 'File harus XLSX (export nilai Assignment dari Moodle).';
                     $msgType = 'error';
                 } else {
                     try {
-                        $teks = PdfTextReader::extract($_FILES['file']['tmp_name']);
-                        $flat = preg_replace('/\s+/', ' ', $teks);
-
-                        preg_match_all(
-                            '/((?:DK |BD )?(?:Desa|DESA|Bumdes)\b.*?)(?=[Ss]ubmit(?:ted|te|s)?\s*for\s*grading)/i',
-                            $flat, $mm);
-                        $entries = $mm[1];
-                        $jmlSubmit = preg_match_all('/[Ss]ubmit(?:ted|te|s)?\s*for\s*grading/i', $flat);
-
-                        if (empty($entries)) {
-                            $msg = 'Tidak ada submission terbaca dari PDF. '
-                                 . 'Pastikan ini PDF "Submissions" dari Joglo (bukan hasil scan).';
-                            $msgType = 'error';
+                        $data = XlsxReader::read($_FILES['file']['tmp_name'], 0);
+                        if (empty($data) || count($data) < 2) {
+                            $msg = 'File kosong atau tanpa header.'; $msgType = 'error';
                         } else {
-                            $byNamaT = [];
-                            foreach ($listDesa as $kd => $d) {
-                                $byNamaT[norm_nama($d['nama_desa'])][] = $kd;
-                            }
-                            $ok = 0; $gagal = []; $sudahProses = [];
-                            $stmt = $mysqli->prepare(
-                                "INSERT INTO gradebook_tugas (kode_desa,tugas_no,kumpul) VALUES (?,?,1)
-                                 ON DUPLICATE KEY UPDATE kumpul=1, uploaded_at=NOW()");
-
-                            foreach ($entries as $e) {
-                                $kode = match_tugas_kode($e, $listDesa, $byNamaT);
-                                if ($kode === null) {
-                                    $gagal[] = ekstrak_nama_tugas($e);
-                                    continue;
+                            // Deteksi kolom: email, nama, + 4 kolom tugas (cocokkan label $TUGAS)
+                            $hdr = $data[0];
+                            $colEmail = $colNama = null;
+                            $colTugas = [];               // ci => tugas_no
+                            foreach ($hdr as $ci => $h) {
+                                $lc = strtolower(trim((string)$h));
+                                if ($colEmail === null && strpos($lc, 'email') !== false) $colEmail = $ci;
+                                if ($colNama  === null && strpos($lc, 'first name') !== false) $colNama = $ci;
+                                foreach ($TUGAS as $tn => $lbl) {
+                                    if (stripos((string)$h, $lbl) !== false) { $colTugas[$ci] = $tn; }
                                 }
-                                if (isset($sudahProses[$kode])) continue;
-                                $sudahProses[$kode] = true;
-                                $stmt->bind_param('si', $kode, $tno);
-                                $stmt->execute();
-                                $ok++;
                             }
-                            $stmt->close();
-
-                            $msg = "Tugas $tno ({$TUGAS[$tno]}): terbaca <b>" . count($entries)
-                                 . "</b> submission, <b>$ok</b> desa ditandai mengumpulkan.";
-                            if ($gagal) {
-                                $msg .= " <b>" . count($gagal) . "</b> gagal dicocokkan: "
-                                      . h(implode(', ', array_slice($gagal, 0, 6)))
-                                      . (count($gagal) > 6 ? ' …' : '');
-                                $msgType = 'warn';
+                            if (empty($colTugas)) {
+                                $msg = 'Kolom nilai tugas tidak ditemukan. Header harus memuat nama tugas '
+                                     . '(Aspek Legal / Penyaluran Dana Desa / Tugas Tematik / Laporan Keuangan BUMDes).'
+                                     . ' Header terbaca: ' . h(implode(' | ', array_map('strval', $hdr)));
+                                $msgType = 'error';
                             } else {
-                                $msgType = 'ok';
+                                $stmt = $mysqli->prepare(
+                                    "INSERT INTO gradebook_tugas (kode_desa,tugas_no,kumpul,nilai)
+                                     VALUES (?,?,1,?)
+                                     ON DUPLICATE KEY UPDATE kumpul=1, nilai=VALUES(nilai), uploaded_at=NOW()");
+                                $okNilai = 0; $okDesa = 0; $gagal = [];
+                                for ($i = 1; $i < count($data); $i++) {
+                                    $row   = $data[$i];
+                                    $email = $colEmail !== null ? trim((string)($row[$colEmail] ?? '')) : '';
+                                    $namaD = $colNama  !== null ? trim((string)($row[$colNama]  ?? '')) : '';
+                                    if ($email === '' && $namaD === '') continue;
+                                    $kode = match_kode($email, $namaD, $byEmail, $byNama, $listDesa);
+                                    if ($kode === null) { $gagal[] = $namaD ?: $email; continue; }
+                                    $adaNilai = false;
+                                    foreach ($colTugas as $ci => $tn) {
+                                        $raw = trim((string)($row[$ci] ?? ''));
+                                        if ($raw === '' || $raw === '-' ||
+                                            !is_numeric(str_replace(',', '.', $raw))) continue;
+                                        $nilai = (float)str_replace(',', '.', $raw);
+                                        $stmt->bind_param('sid', $kode, $tn, $nilai);
+                                        $stmt->execute();
+                                        $okNilai++; $adaNilai = true;
+                                    }
+                                    if ($adaNilai) $okDesa++;
+                                }
+                                $stmt->close();
+                                $msg = "Nilai 4 Tugas: <b>$okNilai</b> nilai tersimpan untuk <b>$okDesa</b> desa.";
+                                if ($gagal) {
+                                    $gagal = array_values(array_unique($gagal));
+                                    $msg .= " <b>" . count($gagal) . "</b> baris gagal dicocokkan: "
+                                          . h(implode(', ', array_slice($gagal, 0, 8)))
+                                          . (count($gagal) > 8 ? ' …' : '');
+                                    $msgType = 'warn';
+                                } else {
+                                    $msgType = 'ok';
+                                }
                             }
                         }
                     } catch (Exception $ex) {
-                        $msg = 'Gagal memproses PDF: ' . h($ex->getMessage());
+                        $msg = 'Gagal memproses XLSX: ' . h($ex->getMessage());
                         $msgType = 'error';
                     }
                 }

@@ -21,11 +21,14 @@ $res = $mysqli->query("SELECT kode_desa,hari FROM gradebook_hadir WHERE hadir=1"
 while ($r = $res->fetch_assoc()) {
     $hadir[$r['kode_desa']][$r['hari']] = 1;
 }
-// tugas[kode][no] = 1
+// tugas[kode][no] = ['nilai'=>..,'kumpul'=>..]
 $tugas = [];
-$res = $mysqli->query("SELECT kode_desa,tugas_no FROM gradebook_tugas WHERE kumpul=1");
+$res = $mysqli->query("SELECT kode_desa,tugas_no,kumpul,nilai FROM gradebook_tugas");
 while ($r = $res->fetch_assoc()) {
-    $tugas[$r['kode_desa']][(int)$r['tugas_no']] = 1;
+    $tugas[$r['kode_desa']][(int)$r['tugas_no']] = [
+        'nilai'  => $r['nilai'],     // NULL jika belum ada nilai
+        'kumpul' => (int)$r['kumpul'],
+    ];
 }
 // keaktifan[kode] = ['nilai'=>..,'kategori'=>..,'total_poin'=>..]
 $keaktifan = [];
@@ -105,7 +108,14 @@ if (isset($_GET['export'])) {
             }
         }
         foreach ($TUGAS as $tn => $tl) {
-            echo '<td>' . (isset($tugas[$k][$tn]) ? 'V' : '') . '</td>';
+            $tg = $tugas[$k][$tn] ?? null;
+            if ($tg !== null && $tg['nilai'] !== null) {
+                echo '<td>' . h(rtrim(rtrim($tg['nilai'], '0'), '.')) . '</td>';
+            } elseif ($tg !== null && $tg['kumpul']) {
+                echo '<td>V</td>';
+            } else {
+                echo '<td></td>';
+            }
         }
         // Keaktifan (1 kolom: nilai numerik saja)
         if (isset($keaktifan[$k])) {
@@ -439,22 +449,16 @@ $csrf = csrf_token();
       </form>
     </div>
 
-    <!-- 4 Tugas -->
+    <!-- Nilai 4 Tugas -->
     <div class="gb-card">
-      <h3>📂 Upload Status 4 Tugas</h3>
-      <div class="hint">PDF "Submissions" hasil export dari Joglo. Otomatis hitung "Submit for grading".</div>
+      <h3>📂 Upload Nilai 4 Tugas</h3>
+      <div class="hint">File XLSX export nilai Assignment dari Moodle (4 tugas sekaligus). Kolom nilai dicocokkan otomatis: Aspek Legal, Penyaluran Dana Desa, Tugas Tematik, Laporan Keuangan BUMDes.</div>
       <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
         <input type="hidden" name="aksi" value="upload_tugas">
-        <label>Tugas</label>
-        <select name="tugas_no" required>
-          <?php foreach ($TUGAS as $tn => $tl): ?>
-            <option value="<?= $tn ?>">Tugas <?= $tn ?> — <?= h($tl) ?></option>
-          <?php endforeach; ?>
-        </select>
-        <label>File PDF Submissions</label>
-        <input type="file" name="file" accept=".pdf" required>
-        <button class="gb-btn">Unggah & Proses PDF</button>
+        <label>File XLSX Nilai Tugas</label>
+        <input type="file" name="file" accept=".xlsx" required>
+        <button class="gb-btn">Unggah Nilai 4 Tugas</button>
       </form>
     </div>
 
@@ -501,18 +505,17 @@ $csrf = csrf_token();
           <?php foreach ($TUGAS as $tn => $tl): ?>
             <th rowspan="2" title="<?= h($tl) ?>">T<?= $tn ?></th>
           <?php endforeach; ?>
-          <th colspan="2" style="background:linear-gradient(135deg,#7e22ce,#a855f7)">Keaktifan</th>
+          <th rowspan="2">Keaktifan</th>
         </tr>
         <tr class="sub">
           <?php foreach ($HARI as $hk => $hv): if (!$hv['test']) continue; ?>
             <th>Hadir</th><th>Pre</th><th>Post</th>
           <?php endforeach; ?>
-          <th style="background:#6b21a8">Nilai</th><th style="background:#6b21a8">Kategori</th>
         </tr>
       </thead>
       <tbody>
       <?php if (empty($pageRows)): ?>
-        <tr><td colspan="34">Tidak ada data.</td></tr>
+        <tr><td colspan="32">Tidak ada data.</td></tr>
       <?php else: $no = ($page - 1) * $pp; foreach ($pageRows as $d): $no++; $k = $d['kode']; ?>
         <tr>
           <td><?= $no ?></td>
@@ -534,21 +537,22 @@ $csrf = csrf_token();
               <td><?= $post !== null ? '<span class="nv">'.h($post).'</span>' : '<span class="no">–</span>' ?></td>
             <?php endif; ?>
           <?php endforeach; ?>
-          <?php foreach ($TUGAS as $tn => $tl): ?>
-            <td><?= isset($tugas[$k][$tn]) ? '<span class="yes">✓</span>' : '<span class="no">–</span>' ?></td>
+          <?php foreach ($TUGAS as $tn => $tl):
+            $tg = $tugas[$k][$tn] ?? null; ?>
+            <td><?php
+              if ($tg !== null && $tg['nilai'] !== null) {
+                  echo '<span class="nv">' . h(rtrim(rtrim($tg['nilai'], '0'), '.')) . '</span>';
+              } elseif ($tg !== null && $tg['kumpul']) {
+                  echo '<span class="yes">✓</span>';
+              } else {
+                  echo '<span class="no">–</span>';
+              }
+            ?></td>
           <?php endforeach; ?>
-          <?php /* Kolom Keaktifan */ ?>
-          <?php if (isset($keaktifan[$k])):
-            $ka = $keaktifan[$k];
-            $katClass = 'kat-ka';
-            if ($ka['kategori'] === 'Sangat Aktif')  $katClass = 'kat-sa';
-            elseif ($ka['kategori'] === 'Aktif')     $katClass = 'kat-a';
-            elseif ($ka['kategori'] === 'Sedikit Aktif') $katClass = 'kat-sed';
-          ?>
-            <td><span class="ka-val"><?= h(rtrim(rtrim($ka['nilai'],'0'),'.')) ?></span></td>
-            <td><span class="kat-badge <?= $katClass ?>"><?= h($ka['kategori']) ?></span></td>
+          <?php /* Kolom Keaktifan — nilai saja, gaya sama dgn kolom nilai lain */ ?>
+          <?php if (isset($keaktifan[$k]) && $keaktifan[$k]['nilai'] !== null && $keaktifan[$k]['nilai'] !== ''): ?>
+            <td><span class="nv"><?= h(rtrim(rtrim($keaktifan[$k]['nilai'],'0'),'.')) ?></span></td>
           <?php else: ?>
-            <td><span class="no">–</span></td>
             <td><span class="no">–</span></td>
           <?php endif; ?>
         </tr>
