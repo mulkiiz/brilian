@@ -4,6 +4,8 @@ uploads/
 error_log
 *.pdf
 *.png
+*.sql
+!katalog/schema.sql
 
 # Tooling autofill katalog (sekali pakai, berisi token — jangan deploy)
 katalog/katalog_autofill.php
