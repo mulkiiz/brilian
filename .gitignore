@@ -10,3 +10,4 @@ error_log
 # Tooling autofill katalog (sekali pakai, berisi token — jangan deploy)
 katalog/katalog_autofill.php
 katalog/katalog_autofill_mix.php
+*.xlsx
