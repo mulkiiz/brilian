@@ -78,8 +78,8 @@ $csrf = csrf_token();
 <meta name="theme-color" content="#003d7a">
 <title>Info Akun LMS &mdash; Brilian 2026</title>
 <link rel="stylesheet" href="assets/style.css?v=7">
-<link rel="stylesheet" href="assets/presensi.css?v=2">
-<link rel="stylesheet" href="assets/gradebook.css?v=1">
+<link rel="stylesheet" href="assets/presensi.css?v=3">
+<link rel="stylesheet" href="assets/gradebook.css?v=2">
 </head>
 <body>
 
@@ -553,6 +553,6 @@ $csrf = csrf_token();
 <script>window.CSRF_TOKEN = "<?= h($csrf) ?>";</script>
 <script src="assets/app.js?v=7"></script>
 <script src="assets/presensi.js?v=2"></script>
-<script src="assets/gradebook.js?v=1"></script>
+<script src="assets/gradebook.js?v=2"></script>
 </body>
 </html>
