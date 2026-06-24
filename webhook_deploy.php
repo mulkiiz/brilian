@@ -48,7 +48,7 @@ foreach ($dirs as $d) {
 $files = [
     'index.php', 'submit.php', 'verify.php', 'admin.php', '_admin_nav.php',
     'presensi.php', 'presensi_klaim.php', 'presensi_status.php', 'presensi_upload.php',
-    'admin_presensi.php', 'gradebook.php', 'gradebook_view.php', 'lms_info.php',
+    'admin_presensi.php', 'gradebook.php', 'gradebook_view.php', 'gradebook_status.php', 'lms_info.php',
     'cron_backfill_lms.php', 'cron_generate_moodle_csv.php',
     'XlsxReader.php', 'PdfTextReader.php', '.htaccess', 'webhook_deploy.php',
 ];

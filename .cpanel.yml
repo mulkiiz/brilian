@@ -26,6 +26,7 @@ deployment:
     - /bin/cp admin_presensi.php           $DEPLOYPATH/
     - /bin/cp gradebook.php                $DEPLOYPATH/
     - /bin/cp gradebook_view.php           $DEPLOYPATH/
+    - /bin/cp gradebook_status.php         $DEPLOYPATH/
     - /bin/cp lms_info.php                 $DEPLOYPATH/
     - /bin/cp cron_backfill_lms.php        $DEPLOYPATH/
     - /bin/cp cron_generate_moodle_csv.php $DEPLOYPATH/
