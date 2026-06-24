@@ -21,6 +21,26 @@
 .btn-presensi:hover { background: #0d5c55; border-color: #0d5c55; }
 .btn-presensi:active { transform: translateY(1px); }
 
+/* Tombol Gradebook (link ke gradebook_public.php) — gaya sama, warna ungu */
+.btn-gradebook {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 12px;
+  background: #7e22ce;
+  color: #fff;
+  border: 1px solid #7e22ce;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all .15s ease;
+}
+.btn-gradebook:hover { background: #6b21a8; border-color: #6b21a8; }
+.btn-gradebook:active { transform: translateY(1px); }
+
 .aksi-cell { white-space: nowrap; }
 .aksi-cell button { margin-right: 4px; }
 .aksi-cell button:last-child { margin-right: 0; }
@@ -31,7 +51,8 @@
   margin-top: 10px;
 }
 .card-actions .btn-info-lms,
-.card-actions .btn-presensi {
+.card-actions .btn-presensi,
+.card-actions .btn-gradebook {
   flex: 1;
   text-align: center;
   justify-content: center;

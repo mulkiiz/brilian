@@ -79,6 +79,7 @@ $csrf = csrf_token();
 <title>Info Akun LMS &mdash; Brilian 2026</title>
 <link rel="stylesheet" href="assets/style.css?v=7">
 <link rel="stylesheet" href="assets/presensi.css?v=2">
+<link rel="stylesheet" href="assets/gradebook.css?v=1">
 </head>
 <body>
 
@@ -98,11 +99,11 @@ $csrf = csrf_token();
 
   <div class="info-card">
     <h2>Selamat datang, Bapak/Ibu Kepala Desa</h2>
-    <p>Setiap desa peserta Brilian 2026 telah memiliki akun LMS Joglo. Klik tombol <b>Info LMS</b> untuk melihat akun, atau tombol <b>Cek Presensi</b> untuk melihat status kehadiran sesi pelatihan.</p>
+    <p>Setiap desa peserta Brilian 2026 telah memiliki akun LMS Joglo. Klik tombol <b>Info LMS</b> untuk melihat akun, atau tombol <b>Gradebook</b> untuk melihat rekap nilai &amp; kehadiran seluruh desa peserta.</p>
     <ol class="steps">
       <li>Cari nama desa Anda di tabel di bawah</li>
-      <li>Klik <b>Info LMS</b> (lihat akun / edit data) atau <b>Cek Presensi</b> (lihat status kehadiran)</li>
-      <li>Masukkan <b>10 digit Kode Desa</b> Anda</li>
+      <li>Klik <b>Info LMS</b> (lihat akun / edit data) — perlu Kode Desa, atau <b>Gradebook</b> (lihat nilai, terbuka untuk semua)</li>
+      <li>Untuk Info LMS, masukkan <b>10 digit Kode Desa</b> Anda</li>
     </ol>
   </div>
 
@@ -169,8 +170,8 @@ $csrf = csrf_token();
             <button class="btn-info-lms" data-nama="<?= h($nama_desa) ?>">
               🔑 Info LMS
             </button>
-            <button class="btn-presensi" data-nama="<?= h($nama_desa) ?>">
-              📊 Cek Presensi
+            <button class="btn-gradebook" data-nama="<?= h($nama_desa) ?>">
+              📊 Gradebook
             </button>
           </td>
         </tr>
@@ -203,8 +204,8 @@ $csrf = csrf_token();
           <button class="btn-info-lms" data-nama="<?= h($nama_desa) ?>">
             🔑 Info LMS
           </button>
-          <button class="btn-presensi" data-nama="<?= h($nama_desa) ?>">
-            📊 Cek Presensi
+          <button class="btn-gradebook" data-nama="<?= h($nama_desa) ?>">
+            📊 Gradebook
           </button>
         </div>
       </div>
@@ -512,8 +513,46 @@ $csrf = csrf_token();
   </div>
 </div>
 
+<!-- ============================================================ -->
+<!-- Modal Gradebook (read-only, per desa, berbasis card)         -->
+<!-- ============================================================ -->
+<div id="modal-gradebook" class="modal" aria-hidden="true">
+  <div class="modal-overlay" data-close-gb></div>
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <button class="modal-close" data-close-gb aria-label="Tutup">×</button>
+
+    <!-- STEP 1: Verifikasi kode -->
+    <div id="gb-step-1" class="step">
+      <h3>Lihat Grade Book</h3>
+      <p>Untuk melihat nilai desa <b id="gb-m-nama"></b>, masukkan <b>10 digit Kode Desa</b> Anda:</p>
+      <div class="form-group">
+        <label for="gb-kode-input">Kode Desa (10 digit angka)</label>
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="gb-kode-input" maxlength="10" placeholder="Contoh: 1207232006" autocomplete="off">
+        <small class="hint">Kode desa Anda terdiri dari 10 angka.</small>
+      </div>
+      <div id="gb-step-1-msg" class="msg"></div>
+      <div class="form-actions">
+        <button class="btn-cancel" data-close-gb>Batal</button>
+        <button class="btn-primary" id="gb-btn-verify">Lihat Nilai »</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Tampilkan nilai (card) -->
+    <div id="gb-step-2" class="step hidden">
+      <h3>📊 Grade Book Desa</h3>
+      <p class="pre-desa-name" id="gb-desa-name">—</p>
+      <div id="gb-content"><!-- diisi via JS --></div>
+      <div class="form-actions">
+        <button class="btn-cancel" data-close-gb>Tutup</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>window.CSRF_TOKEN = "<?= h($csrf) ?>";</script>
 <script src="assets/app.js?v=7"></script>
 <script src="assets/presensi.js?v=2"></script>
+<script src="assets/gradebook.js?v=1"></script>
 </body>
 </html>

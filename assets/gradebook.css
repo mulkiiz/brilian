@@ -1,0 +1,67 @@
+/* ============================================================
+   Brilian 2026 — Modal Gradebook (read-only, per desa, card-based)
+   ============================================================ */
+
+#modal-gradebook .modal-box { max-width: 600px; }
+
+#gb-content { margin-top: 6px; }
+
+/* Ringkasan atas */
+.gb2-summary {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.gb2-summary .s {
+  flex: 1; min-width: 90px; background: #f6f8fb; border: 1px solid #e3e8f0;
+  border-radius: 11px; padding: 10px 12px; text-align: center;
+}
+.gb2-summary .s .n { font-size: 20px; font-weight: 800; color: #13294f; line-height: 1; }
+.gb2-summary .s .l { font-size: 11px; color: #64748b; font-weight: 600; margin-top: 4px; }
+.gb2-summary .s.green .n { color: #047857; }
+.gb2-summary .s.purple .n { color: #7e22ce; }
+
+/* Section */
+.gb2-sec { margin-bottom: 16px; }
+.gb2-sec-title {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 800; color: #0a1a33;
+  text-transform: uppercase; letter-spacing: .5px; margin: 0 0 9px;
+}
+.gb2-sec-title .ic { font-size: 15px; }
+.gb2-sec-title .pill {
+  margin-left: auto; font-size: 11px; font-weight: 700; color: #475569;
+  background: #eef2f8; border-radius: 20px; padding: 2px 10px; letter-spacing: 0;
+}
+
+/* Grid kartu nilai */
+.gb2-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); gap: 8px;
+}
+.gb2-card {
+  background: #f6f8fb; border: 1px solid #e3e8f0; border-radius: 12px;
+  padding: 9px 6px 10px; text-align: center;
+}
+.gb2-card .lbl { font-size: 11.5px; font-weight: 700; color: #334155; line-height: 1.2; }
+.gb2-card .sub { font-size: 9.5px; color: #94a3b8; margin-top: 2px; }
+.gb2-card .val { font-size: 19px; font-weight: 800; margin-top: 6px; line-height: 1; }
+
+.gb2-card.hadir { background: #ecfdf5; border-color: #a7f3d0; }
+.gb2-card.hadir .val { color: #15803d; }
+.gb2-card.miss .val { color: #cbd5e1; }
+.gb2-card.nilai .val { color: #1d4ed8; }
+.gb2-card.empty .val { color: #cbd5e1; }
+
+/* Keaktifan — kartu besar */
+.gb2-ka {
+  display: flex; align-items: center; gap: 16px;
+  background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+  border: 1px solid #e9d5ff; border-radius: 14px; padding: 14px 18px;
+}
+.gb2-ka .big { font-size: 34px; font-weight: 800; color: #7e22ce; line-height: 1; }
+.gb2-ka .meta .t { font-size: 14px; font-weight: 800; color: #6b21a8; }
+.gb2-ka .meta .d { font-size: 12px; color: #9333ea; margin-top: 2px; }
+.gb2-ka.empty { background: #f8fafc; border-color: #e3e8f0; }
+.gb2-ka.empty .big { color: #cbd5e1; }
+.gb2-ka.empty .meta .t,
+.gb2-ka.empty .meta .d { color: #94a3b8; }
+
+.gb2-empty-note { font-size: 12px; color: #94a3b8; text-align: center; padding: 6px 0; }
